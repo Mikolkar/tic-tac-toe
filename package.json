@@ -1,14 +1,10 @@
 {
   "name": "tic-tac-toe",
   "version": "1.0.0",
-  "description": "Simple online Tic Tac Toe game",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "description": "Simple online tic-tac-toe game.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Mikolkar/tic-tac-toe.git"
+    "url": "github:Mikolkar/tic-tac-toe"
   },
   "author": "Mikołaj Karapka & Mikołaj Kalitka",
   "license": "MIT",
