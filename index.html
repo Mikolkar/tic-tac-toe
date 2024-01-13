@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tic Tac Toe</title>
+    <style>
+        /* Dodaj tutaj stylizacje */
+    </style>
+</head>
+<body>
+    <div id="gameBoard">
+        <!-- Tutaj umieść planszę do gry -->
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+        
+        // Logika gry i obsługa zdarzeń
+            // ... (istniejący kod)
+        
+            const board = document.getElementById('gameBoard');
+            let currentPlayer = 'X';
+        
+            // Inicjalizacja planszy gry
+            for (let i = 0; i < 9; i++) {
+                let cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.id = i;
+                cell.addEventListener('click', makeMove);
+                board.appendChild(cell);
+            }
+        
+            function makeMove(e) {
+                if (e.target.textContent === '') {
+                    e.target.textContent = currentPlayer;
+                    socket.emit('game move', { id: e.target.id, player: currentPlayer });
+                    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                }
+            }
+        
+            socket.on('game move', (move) => {
+                document.getElementById(move.id).textContent = move.player;
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            });
+        
+        
+    </script>
+</body
