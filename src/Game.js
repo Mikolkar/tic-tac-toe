@@ -1,5 +1,6 @@
 class Game {
-    constructor() {
+    constructor(id) {
+        this.id = id;
         this.board = [
             [null, null, null],
             [null, null, null],
@@ -12,6 +13,7 @@ class Game {
 
     getGameState() {
         return {
+            id: this.id,
             board: this.board,
             players: this.players,
             currentPlayer: this.currentPlayer,
@@ -19,15 +21,26 @@ class Game {
         };
     }
 
-    addPlayer(player) {
-        this.players.push(player);
-        if (this.players.length === 2) {
-            this.currentPlayer = this.players[0];
+    addPlayer(playerId, playerName) {
+        if (this.players.length < 2) {
+            this.players.push({
+                id: playerId,
+                name: playerName
+            });
+            if (this.players.length === 2) {
+                this.currentPlayer = this.players[0];
+            }
+            return true;
         }
+        return false;
     }
 
-    removePlayer(player) {
-        this.players = this.players.filter(p => p !== player);
+    hasPlayer(playerId) {
+        return this.players.some(p => p.id === playerId);
+    }
+
+    removePlayer(playerId) {
+        this.players = this.players.filter(p => p.id !== playerId);
         this.reset();
     }
 
