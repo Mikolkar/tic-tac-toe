@@ -1,5 +1,3 @@
-//tic tac toe game class
-
 class Game {
     constructor() {
         this.board = [
@@ -36,8 +34,8 @@ class Game {
     makeMove(player, x, y) {
         if (this.currentPlayer === player && this.board[x][y] === null) {
             this.board[x][y] = player;
-            this.checkWinner();
             this.currentPlayer = this.players.find(p => p !== player);
+            this.checkWinner();
         }
     }
 
