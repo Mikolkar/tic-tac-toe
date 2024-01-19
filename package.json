@@ -2,6 +2,9 @@
   "name": "tic-tac-toe",
   "version": "1.0.0",
   "description": "Simple online tic-tac-toe game.",
+  "scripts": {
+    "start": "node src/app.js"
+  },
   "repository": {
     "type": "git",
     "url": "github:Mikolkar/tic-tac-toe"

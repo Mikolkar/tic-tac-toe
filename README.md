@@ -17,4 +17,4 @@ The project was created by **UWR** students for
 
 ## Usage
 
-```node src/app.js```
+```npm start```

@@ -1,87 +1,94 @@
-export class Game {
+//tic tac toe game class
+
+class Game {
     constructor() {
-        this.players = [];
         this.board = [
-            ['', '', ''],
-            ['', '', ''],
-            ['', '', '']
+            [null, null, null],
+            [null, null, null],
+            [null, null, null]
         ];
-        this.turn = 'X';
+        this.players = [];
+        this.currentPlayer = null;
         this.winner = null;
     }
 
-    addPlayer(id) {
-        this.players.push(id);
+    getGameState() {
+        return {
+            board: this.board,
+            players: this.players,
+            currentPlayer: this.currentPlayer,
+            winner: this.winner
+        };
     }
 
-    removePlayer(id) {
-        this.players = this.players.filter(player => player !== id);
-    }
-
-    update(data) {
-        const { row, col } = data;
-        if (this.board[row][col] === '') {
-            this.board[row][col] = this.turn;
-            this.checkWinner();
-            this.changeTurn();
+    addPlayer(player) {
+        this.players.push(player);
+        if (this.players.length === 2) {
+            this.currentPlayer = this.players[0];
         }
     }
 
-    changeTurn() {
-        this.turn = this.turn === 'X' ? 'O' : 'X';
+    removePlayer(player) {
+        this.players = this.players.filter(p => p !== player);
+        this.reset();
+    }
+
+    makeMove(player, x, y) {
+        if (this.currentPlayer === player && this.board[x][y] === null) {
+            this.board[x][y] = player;
+            this.checkWinner();
+            this.currentPlayer = this.players.find(p => p !== player);
+        }
     }
 
     checkWinner() {
-        const board = this.board;
-        const rows = board.length;
-        const cols = board[0].length;
-        
         let winner = null;
 
-        // Check rows
-        for (let i = 0; i < rows; i++) {
-            if (board[i][0] !== '' && board[i][0] === board[i][1] && board[i][1] === board[i][2]) {
-                winner = board[i][0];
+        //check rows
+        this.board.forEach(row => {
+            if (row.every(x => x === row[0])) {
+                winner = row[0];
+            }
+        });
+
+        //check columns
+        for (let i = 0; i < 3; i++) {
+            if (
+                this.board[0][i] !== null &&
+                this.board[0][i] === this.board[1][i] &&
+                this.board[0][i] === this.board[2][i]
+            ) {
+                winner = this.board[0][i];
             }
         }
 
-        // Check cols
-        for (let i = 0; i < cols; i++) {
-            if (board[0][i] !== '' && board[0][i] === board[1][i] && board[1][i] === board[2][i]) {
-                winner = board[0][i];
-            }
+        //check diagonals
+        if ((
+            this.board[0][0] !== null &&
+            this.board[0][0] === this.board[1][1] &&
+            this.board[0][0] === this.board[2][2]
+        ) || (
+            this.board[0][2] !== null &&
+            this.board[0][2] === this.board[1][1] &&
+            this.board[0][2] === this.board[2][0]
+        )) {
+            winner = this.board[1][1];
         }
 
-        // Check diagonals
-        if (board[0][0] !== '' && board[0][0] === board[1][1] && board[1][1] === board[2][2]) {
-            winner = board[0][0];
-        } else if (board[0][2] !== '' && board[0][2] === board[1][1] && board[1][1] === board[2][0]) {
-            winner = board[0][2];
-        }
-
-        // Check if it's draw
-        let draw = true;
-        for (let i = 0; i < rows; i++) {
-            if (board[i].includes('')) {
-                draw = false;
-            }
-        }
-
-        // Update winner
         if (winner !== null) {
             this.winner = winner;
-        } else if (draw) {
-            this.winner = 'draw';
         }
     }
 
     reset() {
         this.board = [
-            ['', '', ''],
-            ['', '', ''],
-            ['', '', '']
+            [null, null, null],
+            [null, null, null],
+            [null, null, null]
         ];
-        this.turn = 'X';
+        this.currentPlayer = this.players[0];
         this.winner = null;
     }
 }
+
+module.exports = Game;
