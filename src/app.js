@@ -21,7 +21,7 @@ for (let id = 0; id < 4; id++) {
 io.on('connection', (socket) => {
     console.log(`New connection: ${socket.id}`);
 
-    socket.on('join_room', (data) => {
+    socket.on('join-room', (data) => {
         let game = games[data.gameId];
         if (!game.addPlayer(socket.id, data.playerName)) {
             socket.emit('full');
