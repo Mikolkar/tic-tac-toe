@@ -35,10 +35,6 @@ class Game {
         return false;
     }
 
-    hasPlayer(playerId) {
-        return this.players.some(p => p.id === playerId);
-    }
-
     removePlayer(playerId) {
         this.players = this.players.filter(p => p.id !== playerId);
         this.reset();

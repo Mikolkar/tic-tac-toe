@@ -14,7 +14,7 @@ const server = app.listen(PORT, () => {
 const io = socket(server);
 
 let games = [];
-for (let id = 0; id < 4; id++) {
+for (let id = 1; id < 5; id++) {
     games.push(new Game(id));
 }
 
@@ -22,7 +22,7 @@ io.on('connection', (socket) => {
     console.log(`New connection: ${socket.id}`);
 
     socket.on('join-room', (data) => {
-        let game = games[data.gameId];
+        let game = games.find((game) => game.id === data.gameId);
         if (!game.addPlayer(socket.id, data.playerName)) {
             socket.emit('full');
             return;
@@ -33,10 +33,10 @@ io.on('connection', (socket) => {
     });
 
     socket.on('move', (data) => {
-        let game = games[data.gameId];
+        let game = games.find((game) => game.id === data.gameId);
         game.makeMove(data.playerId, data.move);
-        if (game.getGameState.winner !== null) {
-            io.to(data.gameId).emit('game_over', game.getGameState().winner);
+        if (game.winner !== null) {
+            io.to(data.gameId).emit('game_over', game.winner);
             setTimeout(() => {
                 game.reset();
                 io.to(data.gameId).emit('update', game.getGameState());
@@ -46,11 +46,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        let game = games.find((game) => game.hasPlayer(socket.id));
+        let game = games.find((game) => game.players.some((player) => player.id === socket.id));
         if (game) {
             game.removePlayer(socket.id);
-            io.to(game.getGameState().id).emit('update', game.getGameState());
-            console.log(`Player ${socket.id} left room ${game.getGameState().id}`);
+            io.to(game.id).emit('update', game.getGameState());
+            console.log(`Player ${socket.id} left room ${game.id}`);
         }
         console.log(`User disconnected: ${socket.id}`);
     });

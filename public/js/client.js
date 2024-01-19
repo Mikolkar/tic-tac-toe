@@ -19,12 +19,12 @@ socket.on('update', (data) => {
     console.log('update', data);
 });
 
-function setView(view) {
+function setView(newView) {
     document.getElementsByClassName('login')[0].style.display = 'none';
     document.getElementsByClassName('lobby')[0].style.display = 'none';
     document.getElementsByClassName('game')[0].style.display = 'none';
-    document.getElementsByClassName(view)[0].style.display = 'block';
-    view = view;
+    document.getElementsByClassName(newView)[0].style.display = 'block';
+    view = newView;
 }
 
 setView('login');
