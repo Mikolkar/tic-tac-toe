@@ -1,7 +1,7 @@
 const socket = io();
 
 var playerName = sessionStorage.getItem('playerName');
-var gameId;
+var view;
 
 var contents = {
     'login': `
@@ -14,26 +14,27 @@ var contents = {
         </div>`,
     'lobby': `
         <div class="lobby">
+            <h2 class="welcome-title">Welcome, %playerName%</h2>
             <h2 class="lobby-title">Lobby</h2>
             <div class="lobby-list">
                 <div class="room-1">
                     <div class="room-name">Room 1</div>
-                    <div class="room-players"></div>
+                    <div class="room-players" id="players-1"></div>
                     <button class="room-button" id="1">Join</button>
                 </div>
                 <div class="room-2">
                     <div class="room-name">Room 2</div>
-                    <div class="room-players"></div>
+                    <div class="room-players" id="players-2"></div>
                     <button class="room-button" id="2">Join</button>
                 </div>
                 <div class="room-3">
                     <div class="room-name">Room 3</div>
-                    <div class="room-players"></div>
+                    <div class="room-players" id="players-3"></div>
                     <button class="room-button" id="3">Join</button>
                 </div>
                 <div class="room-4">
                     <div class="room-name">Room 4</div>
-                    <div class="room-players"></div>
+                    <div class="room-players" id="players-4"></div>
                     <button class="room-button" id="4">Join</button>
                 </div>
             </div>
@@ -42,40 +43,44 @@ var contents = {
         <div class="game">
             <div class="game-board">
                 <div class="game-board-row">
-                    <div class="game-board-cell" data-cell="0"></div>
-                    <div class="game-board-cell" data-cell="1"></div>
-                    <div class="game-board-cell" data-cell="2"></div>
+                    <div class="game-board-cell" data-cell="0">X</div>
+                    <div class="game-board-cell" data-cell="1">X</div>
+                    <div class="game-board-cell" data-cell="2">X</div>
                 </div>
                 <div class="game-board-row">
-                    <div class="game-board-cell" data-cell="3"></div>
-                    <div class="game-board-cell" data-cell="4"></div>
-                    <div class="game-board-cell" data-cell="5"></div>
+                    <div class="game-board-cell" data-cell="3">X</div>
+                    <div class="game-board-cell" data-cell="4">X</div>
+                    <div class="game-board-cell" data-cell="5">X</div>
                 </div>
                 <div class="game-board-row">
-                    <div class="game-board-cell" data-cell="6"></div>
-                    <div class="game-board-cell" data-cell="7"></div>
-                    <div class="game-board-cell" data-cell="8"></div>
+                    <div class="game-board-cell" data-cell="6">X</div>
+                    <div class="game-board-cell" data-cell="7">X</div>
+                    <div class="game-board-cell" data-cell="8">X</div>
                 </div>
             </div>
             <div class="game-status">
-                <div class="game-status-message"></div>
+                <div class="game-status-title">Game Status</div>
+                <div class="game-status-player"></div>
                 <button class="game-status-button" id="restart-button">Restart</button>
                 <button class="game-status-button" id="leave-button">Leave</button>
+            </div>
+            <div class="game-turn">
+                <div class="game-turn-title"></div>
             </div>
         </div>`
 };
 
-function isView(viewName) {
-    return document.querySelector('#content').innerHTML === contents[viewName];
-}
-
 function setView(viewName) {
-    document.querySelector('#content').innerHTML = contents[viewName];
+    document.querySelector('.content').innerHTML = contents[viewName];
+    view = viewName;
+    if (viewName === 'lobby') {
+        document.querySelector('.welcome-title').innerHTML = document.querySelector('.welcome-title').innerHTML.replace('%playerName%', playerName);
+    }
 }
 
 
 document.addEventListener('keypress', (event) => {
-    if (event.target.matches('#player-name')) {
+    if (event.target.matches('#player-name') && view === 'login') {
         if (event.key === 'Enter') {
             event.preventDefault();
             document.getElementById('login-button').click();
@@ -85,9 +90,10 @@ document.addEventListener('keypress', (event) => {
 
 document.addEventListener('click', (event) => {
     if (event.target.matches('#login-button')) {
-        if (isView('login')) {
-            playerName = document.getElementById('player-name').value;
+        if (view === 'login') {
+            playerName = document.querySelector('#player-name').value;
             sessionStorage.setItem('playerName', playerName);
+            socket.emit('player:login', {playerName: playerName});
             setView('lobby');
         }
     }
@@ -95,7 +101,7 @@ document.addEventListener('click', (event) => {
 
 document.addEventListener('click', (event) => {
     if (event.target.matches('.room-button')) {
-        if (isView('lobby')) {
+        if (view === 'lobby') {
             socket.emit('room:join', {gameId: parseInt(event.target.id), playerName: playerName});
         }
     }
@@ -103,7 +109,7 @@ document.addEventListener('click', (event) => {
 
 document.addEventListener('click', (event) => {
     if (event.target.matches('#leave-button')) {
-        if (isView('game')) {
+        if (view === 'game') {
             socket.emit('room:leave');
             setView('lobby');
         }
@@ -111,23 +117,49 @@ document.addEventListener('click', (event) => {
 });
 
 
+socket.on('lobby:update', (data) => {
+    console.log('lobby:update', data);
+    if (view === 'lobby') {
+        for (let i = 1; i <= 4; i++) {
+            document.querySelector('#players-' + i).innerHTML = '';
+            if (data[i - 1].players.length > 0) {
+                for (let j = 0; j < data[i - 1].players.length; j++) {
+                    document.querySelector('#players-' + i).innerHTML += '<div class="room-player">' + data[i - 1].players[j].name + '</div>';
+                }
+            } else {
+                document.querySelector('#players-' + i).innerHTML = '<div class="room-player">Empty</div>';
+            }
+        }
+    }
+});
+
 socket.on('room:full', () => {
-    console.log('full');
+    console.log('room:full');
 });
 
 socket.on('room:joined', (data) => {
-    console.log('joined', data);
-    gameId = data.gameId;
-    setView('game');
+    console.log('room:joined', data);
+    if (view === 'lobby') {
+        setView('game');
+    }
 });
 
-socket.on('update', (data) => {
-    console.log('update', data);
+socket.on('room:update', (data) => {
+    console.log('room:update', data);
+    if (view === 'game') {
+        if (data.players.length === 1) {
+            document.querySelector('.game-status-player').innerHTML = 'Waiting for player...';
+        }
+        if (data.players.length === 2) {
+            document.querySelector('.game-status-player').innerHTML = `Playing with ${data.players[0].name === playerName ? data.players[1].name : data.players[0].name}`;
+        }
+    }
 });
 
 
 if (playerName) {
     setView('lobby');
+    socket.emit('player:login', {playerName: playerName});
 } else {
     setView('login');
 }

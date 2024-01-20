@@ -93,7 +93,7 @@ module.exports = class Game {
             [null, null, null],
             [null, null, null]
         ];
-        this.currentPlayer = this.players[0];
+        this.currentPlayer = null;
         this.winner = null;
     }
 }
