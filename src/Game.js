@@ -21,11 +21,11 @@ module.exports = class Game {
         };
     }
 
-    addPlayer(playerId, playerName) {
+    addPlayer(player) {
         if (this.players.length < 2) {
             this.players.push({
-                id: playerId,
-                name: playerName
+                id: player.id,
+                name: player.name,
             });
             if (this.players.length === 2) {
                 this.currentPlayer = this.players[0];
