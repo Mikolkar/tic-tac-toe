@@ -13,45 +13,58 @@ const server = app.listen(PORT, () => {
 
 const io = socket(server);
 
-let games = [];
-for (let id = 1; id < 5; id++) {
-    games.push(new Game(id));
+var games = [
+    new Game(1),
+    new Game(2),
+    new Game(3),
+    new Game(4)
+];
+
+function getGame(gameId) {
+    return games.find((game) => game.id === gameId);
 }
+
+function findGame(playerId) {
+    return games.find((game) => game.players.some((player) => player.id === playerId));
+}
+
+function leaveGame(playerId) {
+    let game = findGame(playerId);
+    if (game) {
+        game.removePlayer(playerId);
+        io.to(game.id).emit('update', game.getGameState());
+        console.log(`Player ${playerId} has left room ${game.id}`);
+    }
+}
+
 
 io.on('connection', (socket) => {
     console.log(`New connection: ${socket.id}`);
 
-    socket.on('join-room', (data) => {
-        let game = games.find((game) => game.id === data.gameId);
-        if (!game.addPlayer(socket.id, data.playerName)) {
-            socket.emit('full');
-            return;
+    socket.on('room:join', (data) => {
+        let game = getGame(data.gameId);
+        if (game.addPlayer(socket.id, data.playerName)) {
+            socket.join(data.gameId);
+            io.to(data.gameId).emit('update', game.getGameState());
+            console.log(`Player ${data.playerName} has joined room ${data.gameId}`);
+            socket.emit('room:joined', { gameId: data.gameId });
+        } else {
+            socket.emit('room:full');
         }
-        socket.join(data.gameId);       // add socket to room
-        io.to(data.gameId).emit('update', game.getGameState());     // send update to all sockets in room
-        console.log(`Player ${data.playerName} joined room ${data.gameId}`);
     });
 
-    socket.on('move', (data) => {
-        let game = games.find((game) => game.id === data.gameId);
-        game.makeMove(data.playerId, data.move);
-        if (game.winner !== null) {
-            io.to(data.gameId).emit('game_over', game.winner);
-            setTimeout(() => {
-                game.reset();
-                io.to(data.gameId).emit('update', game.getGameState());
-            }, 5000);
-        }
+    socket.on('room:move', (data) => {
+        let game = getGame(data.gameId);
+        game.makeMove(data.playerId, data.x, data.y);
         io.to(data.gameId).emit('update', game.getGameState());
     });
 
+    socket.on('room:leave' => {
+        leaveGame(socket.id);
+    });
+
     socket.on('disconnect', () => {
-        let game = games.find((game) => game.players.some((player) => player.id === socket.id));
-        if (game) {
-            game.removePlayer(socket.id);
-            io.to(game.id).emit('update', game.getGameState());
-            console.log(`Player ${socket.id} left room ${game.id}`);
-        }
+        leaveGame(socket.id);
         console.log(`User disconnected: ${socket.id}`);
     });
 });

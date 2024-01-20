@@ -1,4 +1,4 @@
-class Game {
+module.exports = class Game {
     constructor(id) {
         this.id = id;
         this.board = [
@@ -98,4 +98,3 @@ class Game {
     }
 }
 
-module.exports = Game;
