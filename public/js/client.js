@@ -79,21 +79,6 @@ function setView(viewName) {
 }
 
 
-document.addEventListener('click', (event) => {
-    if (view == 'game') {
-        if (event.target.matches('.game-board-cell')) {
-            console.log(event.target.getAttribute('data-cell'));
-        }
-}});
-// document.querySelectorAll('.game-board-cell').forEach(cell => {
-//     cell.addEventListener('click', () => {
-//         const cellIndex = cell.getAttribute('data-cell');
-//         console.log('Cell clicked:', cellIndex);
-//         // Tutaj możesz dodać dalszą logikę, na przykład wywołanie funkcji makeMove
-//         // makeMove(cellIndex);
-//     });
-// });
-
 document.addEventListener('keypress', (event) => {
     if (event.target.matches('#player-name') && view === 'login') {
         if (event.key === 'Enter') {
