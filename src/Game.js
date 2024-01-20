@@ -40,10 +40,10 @@ module.exports = class Game {
         this.reset();
     }
 
-    makeMove(player, x, y) {
-        if (this.currentPlayer === player && this.board[x][y] === null) {
-            this.board[x][y] = player;
-            this.currentPlayer = this.players.find(p => p !== player);
+    makeMove(playerId, x, y) {
+        if (this.currentPlayer.id === playerId && this.board[x][y] === null && this.winner === null) {
+            this.board[x][y] = playerId === this.players[0].id ? 'X' : 'O';
+            this.currentPlayer = this.players.find(p => p.id !== playerId);
             this.checkWinner();
         }
     }
@@ -83,7 +83,7 @@ module.exports = class Game {
         }
 
         if (winner !== null) {
-            this.winner = winner;
+            this.winner = winner === 'X' ? this.players[0] : this.players[1];
         }
     }
 

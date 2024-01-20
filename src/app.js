@@ -52,10 +52,9 @@ io.on('connection', (socket) => {
     });
 
     socket.on('room:move', (data) => {
-        // let game = getGame(data.gameId);
-        // game.makeMove(data.playerId, data.x, data.y);
-        // io.to(data.gameId).emit('room:update', game.getGameState());
-        console.log("Cell clicked");
+        let game = findGame(socket.id);
+        game.makeMove(socket.id, data.x, data.y);
+        io.to(game.id).emit('room:update', game.getGameState());
     });
 
     socket.on('room:leave', () => {

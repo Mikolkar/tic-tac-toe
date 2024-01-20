@@ -41,19 +41,19 @@ var contents = {
         <div class="game">
             <div class="game-board">
                 <div class="game-board-row">
-                    <div class="game-board-cell" data-cell="0"></div>
-                    <div class="game-board-cell" data-cell="1"></div>
-                    <div class="game-board-cell" data-cell="2"></div>
+                    <div class="game-board-cell" data-cell="0,0"></div>
+                    <div class="game-board-cell" data-cell="0,1"></div>
+                    <div class="game-board-cell" data-cell="0,2"></div>
                 </div>
                 <div class="game-board-row">
-                    <div class="game-board-cell" data-cell="3"></div>
-                    <div class="game-board-cell" data-cell="4"></div>
-                    <div class="game-board-cell" data-cell="5"></div>
+                    <div class="game-board-cell" data-cell="1,0"></div>
+                    <div class="game-board-cell" data-cell="1,1"></div>
+                    <div class="game-board-cell" data-cell="1,2"></div>
                 </div>
                 <div class="game-board-row">
-                    <div class="game-board-cell" data-cell="6"></div>
-                    <div class="game-board-cell" data-cell="7"></div>
-                    <div class="game-board-cell" data-cell="8"></div>
+                    <div class="game-board-cell" data-cell="2,0"></div>
+                    <div class="game-board-cell" data-cell="2,1"></div>
+                    <div class="game-board-cell" data-cell="2,2"></div>
                 </div>
             </div>
             <div class="game-status">
@@ -73,6 +73,17 @@ function setView(viewName) {
     view = viewName;
     if (viewName === 'lobby') {
         document.querySelector('.welcome-title').innerHTML = document.querySelector('.welcome-title').innerHTML.replace('%playerName%', playerName);
+    }
+}
+
+function drawBoard(board) {
+    if (view === 'game') {
+        console.log(board);
+        for (let i = 0; i < board.length; i++) {
+            for (let j = 0; j < board[0].length; j++) {
+                document.querySelector(`[data-cell="${i},${j}"]`).innerHTML = board[i][j]; 
+            }
+        }
     }
 }
 
@@ -110,10 +121,10 @@ document.addEventListener('click', (event) => {
 
 document.addEventListener('click', (event) => {
     if (event.target.matches('.game-board-cell')) {
-        // Przykładowa logika zmieniająca stan komórki
-        event.target.classList.toggle('active-cell');
-        // Możesz także emitować zdarzenie do Socket.IO
-        socket.emit('room:move', { cellId: event.target.dataset.cell });
+        if (view === 'game') {
+            cells = event.target.dataset.cell.split(',');
+            socket.emit('room:move', {x: parseInt(cells[0]), y: parseInt(cells[1])});
+        }
     }
 });
 
@@ -155,6 +166,7 @@ socket.on('room:update', (data) => {
         if (data.players.length === 2) {
             document.querySelector('.game-status-player').innerHTML = `Playing with ${data.players[0].name === playerName ? data.players[1].name : data.players[0].name}`;
         }
+        drawBoard(data.board);
     }
 });
 

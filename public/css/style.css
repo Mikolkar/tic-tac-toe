@@ -116,6 +116,7 @@ button:hover {
   border: 3px solid black;
   font-size: 64px;
   cursor: pointer;
+  color: black;
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Dosis:wght@600&display=swap');
