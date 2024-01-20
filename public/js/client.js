@@ -7,9 +7,7 @@ var contents = {
     'login': `
         <div class="login">
             <div class="login-form">
-                <h2 class="login-form-title">Enter your name</h2>
-                <input class="login-form-input" type="text" id="player-name" placeholder="Name">
-                <button class="login-form-button" id="login-button">Login</button>
+                <input class="login-form-input" type="text" id="player-name" placeholder="Enter your name">
             </div>
         </div>`,
     'lobby': `
@@ -79,18 +77,10 @@ function setView(viewName) {
 }
 
 document.addEventListener('keypress', (event) => {
-    if (event.target.matches('#player-name') && view === 'login') {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            document.getElementById('login-button').click();
-        }
-    }
-});
-
-document.addEventListener('click', (event) => {
-    if (event.target.matches('#login-button')) {
-        if (view === 'login') {
-            playerName = document.querySelector('#player-name').value;
+    if (event.target.matches('#player-name') && event.key === 'Enter' && view === 'login') {
+        event.preventDefault();
+        playerName = document.querySelector('#player-name').value.trim();
+        if (playerName) {
             sessionStorage.setItem('playerName', playerName);
             socket.emit('player:login', {playerName: playerName});
             setView('lobby');

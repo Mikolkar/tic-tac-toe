@@ -1,17 +1,7 @@
-
-
 body {
   background-color: #1a1a1a;
   color: white;
-  font-family: sans-serif;
-  height: 100vh;
-}
-
-.container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  font-family: "Dosis";
 }
 
 button {
@@ -28,12 +18,48 @@ button:hover {
   background-color: #cccccc;
 }
 
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
 .title {
+  font-size: 32px;
+  margin-bottom: 100px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.login-form {
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 300px;
+}
+
+.login-form-input {
+  color: white;
+  background-color: transparent;
+  border: none;
+  text-align: center;
   font-size: 24px;
+  font-weight: bold;
+  outline: none;
+  margin-top: 30px;
+  width: 100%;
+}
+
+.login-form-input:not(:placeholder-shown) {
+  text-decoration: underline;
 }
 
 .game {
-  margin-top: 100px;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -91,3 +117,5 @@ button:hover {
   font-size: 64px;
   cursor: pointer;
 }
+
+@import url('https://fonts.googleapis.com/css2?family=Dosis:wght@600&display=swap');
