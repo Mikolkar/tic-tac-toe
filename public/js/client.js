@@ -78,7 +78,6 @@ function setView(viewName) {
     }
 }
 
-
 document.addEventListener('keypress', (event) => {
     if (event.target.matches('#player-name') && view === 'login') {
         if (event.key === 'Enter') {
@@ -99,12 +98,14 @@ document.addEventListener('click', (event) => {
     }
 });
 
+
 document.addEventListener('click', (event) => {
     if (event.target.matches('.room-button')) {
         if (view === 'lobby') {
             socket.emit('room:join', {gameId: parseInt(event.target.id), playerName: playerName});
         }
     }
+    
 });
 
 document.addEventListener('click', (event) => {
@@ -115,6 +116,17 @@ document.addEventListener('click', (event) => {
         }
     }
 });
+
+
+document.addEventListener('click', (event) => {
+    if (event.target.matches('.game-board-cell')) {
+        // Przykładowa logika zmieniająca stan komórki
+        event.target.classList.toggle('active-cell');
+        // Możesz także emitować zdarzenie do Socket.IO
+        socket.emit('room:move', { cellId: event.target.dataset.cell });
+    }
+});
+
 
 
 socket.on('lobby:update', (data) => {
