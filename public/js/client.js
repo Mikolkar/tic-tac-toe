@@ -43,26 +43,26 @@ var contents = {
         <div class="game">
             <div class="game-board">
                 <div class="game-board-row">
-                    <div class="game-board-cell" data-cell="0">X</div>
-                    <div class="game-board-cell" data-cell="1">X</div>
-                    <div class="game-board-cell" data-cell="2">X</div>
+                    <div class="game-board-cell" data-cell="0"></div>
+                    <div class="game-board-cell" data-cell="1"></div>
+                    <div class="game-board-cell" data-cell="2"></div>
                 </div>
                 <div class="game-board-row">
-                    <div class="game-board-cell" data-cell="3">X</div>
-                    <div class="game-board-cell" data-cell="4">X</div>
-                    <div class="game-board-cell" data-cell="5">X</div>
+                    <div class="game-board-cell" data-cell="3"></div>
+                    <div class="game-board-cell" data-cell="4"></div>
+                    <div class="game-board-cell" data-cell="5"></div>
                 </div>
                 <div class="game-board-row">
-                    <div class="game-board-cell" data-cell="6">X</div>
-                    <div class="game-board-cell" data-cell="7">X</div>
-                    <div class="game-board-cell" data-cell="8">X</div>
+                    <div class="game-board-cell" data-cell="6"></div>
+                    <div class="game-board-cell" data-cell="7"></div>
+                    <div class="game-board-cell" data-cell="8"></div>
                 </div>
             </div>
             <div class="game-status">
                 <div class="game-status-title">Game Status</div>
                 <div class="game-status-player"></div>
-                <button class="game-status-button" id="restart-button">Restart</button>
                 <button class="game-status-button" id="leave-button">Leave</button>
+                <button class="game-status-button" id="restart-button">Restart</button>
             </div>
             <div class="game-turn">
                 <div class="game-turn-title"></div>
