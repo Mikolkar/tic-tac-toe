@@ -9,6 +9,7 @@ module.exports = class Game {
         this.players = [];
         this.currentPlayer = null;
         this.winner = null;
+        this.draw = false;
     }
 
     getGameState() {
@@ -17,7 +18,8 @@ module.exports = class Game {
             board: this.board,
             players: this.players,
             currentPlayer: this.currentPlayer,
-            winner: this.winner
+            winner: this.winner,
+            draw: this.draw,
         };
     }
 
@@ -41,10 +43,12 @@ module.exports = class Game {
     }
 
     makeMove(playerId, x, y) {
-        if (this.currentPlayer.id === playerId && this.board[x][y] === null && this.winner === null) {
-            this.board[x][y] = playerId === this.players[0].id ? 'X' : 'O';
-            this.currentPlayer = this.players.find(p => p.id !== playerId);
-            this.checkWinner();
+        if (this.currentPlayer !== null) {
+            if (this.currentPlayer.id === playerId && this.board[x][y] === null && this.winner === null) {
+                this.board[x][y] = playerId === this.players[0].id ? 'X' : 'O';
+                this.currentPlayer = this.players.find(p => p.id !== playerId);
+                this.checkWinner();
+            }
         }
     }
 
@@ -84,6 +88,10 @@ module.exports = class Game {
 
         if (winner !== null) {
             this.winner = winner === 'X' ? this.players[0] : this.players[1];
+        }
+
+        if (this.board.every(row => row.every(cell => cell !== null))) {
+            this.draw = true;
         }
     }
 

@@ -37,35 +37,43 @@ var contents = {
                 </div>
             </div>
         </div>`,
-    'game': `
-        <div class="game">
-            <div class="game-board">
-                <div class="game-board-row">
-                    <div class="game-board-cell" data-cell="0,0"></div>
-                    <div class="game-board-cell" data-cell="0,1"></div>
-                    <div class="game-board-cell" data-cell="0,2"></div>
+        'game': `
+            <div class="game">
+                <div class="game-status">
+                    <div class="game-status-title">Game Status</div>
+                    <div class="game-status-player"></div>
+                    <div class="game-turn-title"></div>
                 </div>
-                <div class="game-board-row">
-                    <div class="game-board-cell" data-cell="1,0"></div>
-                    <div class="game-board-cell" data-cell="1,1"></div>
-                    <div class="game-board-cell" data-cell="1,2"></div>
+                <div class="game-board">
+                    <div class="game-board-row">
+                        <div class="game-board-cell" data-cell="0,0"></div>
+                        <div class="game-board-cell" data-cell="0,1"></div>
+                        <div class="game-board-cell" data-cell="0,2"></div>
+                    </div>
+                    <div class="game-board-row">
+                        <div class="game-board-cell" data-cell="1,0"></div>
+                        <div class="game-board-cell" data-cell="1,1"></div>
+                        <div class="game-board-cell" data-cell="1,2"></div>
+                    </div>
+                    <div class="game-board-row">
+                        <div class="game-board-cell" data-cell="2,0"></div>
+                        <div class="game-board-cell" data-cell="2,1"></div>
+                        <div class="game-board-cell" data-cell="2,2"></div>
+                    </div>
                 </div>
-                <div class="game-board-row">
-                    <div class="game-board-cell" data-cell="2,0"></div>
-                    <div class="game-board-cell" data-cell="2,1"></div>
-                    <div class="game-board-cell" data-cell="2,2"></div>
+                <div class="game-action">
+                    <button class="game-status-button" id="leave-button">Leave</button>
+                    <button class="game-status-button" id="restart-button">Restart</button>
                 </div>
-            </div>
-            <div class="game-status">
-                <div class="game-status-title">Game Status</div>
-                <div class="game-status-player"></div>
-                <button class="game-status-button" id="leave-button">Leave</button>
-                <button class="game-status-button" id="restart-button">Restart</button>
-            </div>
-            <div class="game-turn">
-                <div class="game-turn-title"></div>
-            </div>
-        </div>`
+                </div>
+        </div>`,
+        'game-result': 
+        `<div class="result">
+            <div class="result-title">Game Result</div>
+            <div class="result-message"></div>
+            <button class="result-button">Play Again</button>
+       </div>`
+
 };
 
 function setView(viewName) {
@@ -75,6 +83,20 @@ function setView(viewName) {
         document.querySelector('.welcome-title').innerHTML = document.querySelector('.welcome-title').innerHTML.replace('%playerName%', playerName);
     }
 }
+
+function setTurn(currentPlayerName) {
+    const statusElement = document.querySelector('.game-status-player');
+    if (currentPlayerName === playerName) {
+        statusElement.innerHTML = "It's your turn";
+    } 
+    else if (currentPlayerName === '') {
+        statusElement.innerHTML = "";
+    }
+    else {
+        statusElement.innerHTML = `It's ${currentPlayerName}'s turn`;
+    }
+}
+
 
 function drawBoard(board) {
     if (view === 'game') {
@@ -101,34 +123,28 @@ document.addEventListener('keypress', (event) => {
 
 
 document.addEventListener('click', (event) => {
-    if (event.target.matches('.room-button')) {
-        if (view === 'lobby') {
+    if (view === 'lobby') {
+        if (event.target.matches('.room-button')) {
             socket.emit('room:join', {gameId: parseInt(event.target.id), playerName: playerName});
         }
     }
-    
-});
-
-document.addEventListener('click', (event) => {
-    if (event.target.matches('#leave-button')) {
-        if (view === 'game') {
+    else if (view === 'game') {
+        if (event.target.matches('#leave-button')) {
             socket.emit('room:leave');
             setView('lobby');
         }
-    }
-});
-
-
-document.addEventListener('click', (event) => {
-    if (event.target.matches('.game-board-cell')) {
-        if (view === 'game') {
+        if (event.target.matches('.game-board-cell')) {
             cells = event.target.dataset.cell.split(',');
             socket.emit('room:move', {x: parseInt(cells[0]), y: parseInt(cells[1])});
         }
     }
+    else if (view === 'game-result') {
+        if (event.target.matches('.result-button')) {
+            socket.emit('room:restart');
+            setView('game');
+        }
+    }
 });
-
-
 
 socket.on('lobby:update', (data) => {
     console.log('lobby:update', data);
@@ -165,11 +181,29 @@ socket.on('room:update', (data) => {
         }
         if (data.players.length === 2) {
             document.querySelector('.game-status-player').innerHTML = `Playing with ${data.players[0].name === playerName ? data.players[1].name : data.players[0].name}`;
+            setTurn(data.currentPlayer.name);
         }
         drawBoard(data.board);
+        if (data.winner) {
+            // if (data.winner === playerName) {
+            //     document.querySelector('.result-message').innerHTML = 'You won!';
+            // } else {
+            //     document.querySelector('.result-message').innerHTML = 'You lost!';
+            // }
+            setView('game-result');
+        }
+        // else if (data.draw) {
+        //     document.querySelector('.result-message').innerHTML = 'Draw!';
+        //     setView('game-result');
+        // }
     }
 });
 
+document.addEventListener('click', (event) => {
+    if (event.target.matches('#restart-button')) {
+        socket.emit('room:restart');
+    }
+});
 
 if (playerName) {
     setView('lobby');
