@@ -9,6 +9,7 @@ module.exports = class Game {
         this.players = [];
         this.currentPlayer = null;
         this.winner = null;
+        this.winningLine = [[0,0],[0,0],[0,0]];
     }
 
     getGameState() {
@@ -17,7 +18,8 @@ module.exports = class Game {
             board: this.board,
             players: this.players,
             currentPlayer: this.currentPlayer,
-            winner: this.winner
+            winner: this.winner,
+            winningLine: this.winningLine,
         };
     }
 
@@ -61,6 +63,7 @@ module.exports = class Game {
                 this.board[i][0] === this.board[i][2]
             ) {
                 winner = this.board[i][0];
+                this.winningLine = [[i, 0], [i, 1] ,[i, 2]];
             }
         }
 
@@ -72,6 +75,7 @@ module.exports = class Game {
                 this.board[0][i] === this.board[2][i]
             ) {
                 winner = this.board[0][i];
+                this.winningLine = [[0, i], [1, i], [2, i]];
             }
         }
 
@@ -86,6 +90,11 @@ module.exports = class Game {
             this.board[0][2] === this.board[2][0]
         )) {
             winner = this.board[1][1];
+            if(this.board[0][0] === this.board[1][1] && this.board[0][0] === this.board[2][2]){
+                this.winningLine = [[0, 0], [1, 1], [2, 2]];
+            }else{
+                this.winningLine = [[0, 2], [1, 1], [2, 0]];
+            }
         }
 
         if (winner !== null) {
@@ -106,6 +115,7 @@ module.exports = class Game {
         this.players = this.players.length === 2 ? this.players.reverse() : this.players;
         this.currentPlayer = this.players.length === 2 ? this.players[0] : null;
         this.winner = null;
+        this.winningLine = null;
     }
 }
 

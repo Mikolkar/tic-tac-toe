@@ -14,7 +14,12 @@ var contents = {
         </div>`,
     'lobby': `
         <div class="lobby">
-            <h2 class="welcome-title"></h2>
+            <div class="layout">
+                <h2 class="welcome-title"></h2>
+                <div class="change-name">
+                    <button class="change-name-button" id="change-name-button">Change name</button>
+                </div>
+            </div>
             <h2 class="lobby-title">Lobby</h2>
             <div class="lobby-list">
                 <div class="room-1">
@@ -37,9 +42,7 @@ var contents = {
                     <div class="room-players" id="players-4"></div>
                     <button class="room-button" id="4">Join</button>
                 </div>
-                <div class="change-name">
-                    <button class="change-name-button" id="change-name-button">Change name</button>
-                </div>
+                
             </div>
         </div>`,
         'game': `
@@ -93,16 +96,34 @@ function updateLobby(rooms) {
     }
 }
 
-function drawBoard(board) {
+function drawBoard(board, win = false, winLine = null) {
     if (view === 'game') {
         for (let i = 0; i < board.length; i++) {
             for (let j = 0; j < board[0].length; j++) {
                 document.querySelector(`[data-cell="${i},${j}"]`).innerHTML = board[i][j]; 
+                if(i == 0){
+                    document.querySelector(`[data-cell="${i},${j}"]`).style.borderTop = 'none';
+                }
+                if(i == 2){
+                    document.querySelector(`[data-cell="${i},${j}"]`).style.borderBottom = 'none';
+                }
+                if(j == 0){
+                    document.querySelector(`[data-cell="${i},${j}"]`).style.borderLeft = 'none';
+                }
+                if(j == 2){
+                    document.querySelector(`[data-cell="${i},${j}"]`).style.borderRight = 'none';
+                }
+                if(win){
+                    if(winLine.some((cell) => cell[0] === i && cell[1] === j)){
+                        document.querySelector(`[data-cell="${i},${j}"]`).style.color = 'red';
+                    }
+                }else{
+                    document.querySelector(`[data-cell="${i},${j}"]`).style.color = 'wheat';
+                }
             }
         }
     }
 }
-
 
 // Event listeners
 document.addEventListener('keydown', (event) => {
@@ -186,7 +207,12 @@ socket.on('room:joined', () => {
 socket.on('room:update', (data) => {
     console.log('room:update', data);
     if (view === 'game') {
-        drawBoard(data.board);
+        if(data.winner !== null && data.winner !== 'draw') {
+            drawBoard(data.board, true, data.winningLine);
+        }else{
+            drawBoard(data.board);
+        }
+        
         document.querySelector('#restart-button').style.display = 'none';
         if (data.players.length === 1) {
             document.querySelector('.game-status-player').innerHTML = 'Waiting for player...';

@@ -2,7 +2,7 @@
   --bg-color: #1a1a1a;
   --font-color: white;
   --font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --cell-bg-color: #dddddd;
+  --cell-bg-color: #613a3a;
   --button-bg-color: #dddddd;
   --button-hover-bg-color: #4169e1;
   --footer-bg-color: #0a0a0a;
@@ -33,6 +33,32 @@ button:hover {
   color: white;
 }
 
+[class^="room-"] {
+  display: flex;
+  flex-direction: row;
+  margin: 20px;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+[class^="room-button"] {
+  height: 5vh;
+}
+
+.room-1, .room-2, .room-3, .room-4 {
+  border: 6px solid wheat;
+  width: 20vw;
+  margin: 10px;
+}
+
+.layout {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 20px; 
+}
 .container {
   display: flex;
   flex-direction: column;
@@ -137,12 +163,11 @@ button:hover {
   align-items: center;
   width: 20vmin;
   height: 20vmin;
-  background-color: var(--cell-bg-color);
+  background-color: var(--bg-color);
   margin-left: -3px;
-  border: 3px solid black;
-  font-size: 10vmin;
+  border: 6px solid wheat;
+  font-size: 14vmin;
   cursor: pointer;
-  color: black;
 }
 
 .footer {
