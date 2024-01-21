@@ -8,7 +8,9 @@ var contents = {
         <div class="login">
             <div class="login-form">
                 <input class="login-form-input" type="text" id="player-name" placeholder="Enter your name" autofocus>
+                <button class="login-form-button" id="login-button">→</button>
             </div>
+            <div class="login-message"></div>
         </div>`,
     'lobby': `
         <div class="lobby">
@@ -76,6 +78,21 @@ function setView(viewName) {
     }
 }
 
+function updateLobby(rooms) {
+    if (view === 'lobby') {
+        for (let i = 1; i <= 4; i++) {
+            document.querySelector('#players-' + i).innerHTML = '';
+            if (rooms[i - 1].players.length > 0) {
+                for (let j = 0; j < rooms[i - 1].players.length; j++) {
+                    document.querySelector('#players-' + i).innerHTML += '<div class="room-player">' + rooms[i - 1].players[j].name + '</div>';
+                }
+            } else {
+                document.querySelector('#players-' + i).innerHTML = '<div class="room-player">Empty</div>';
+            }
+        }
+    }
+}
+
 function drawBoard(board) {
     if (view === 'game') {
         for (let i = 0; i < board.length; i++) {
@@ -88,39 +105,40 @@ function drawBoard(board) {
 
 
 // Event listeners
-document.addEventListener('keypress', (event) => {
-    if (event.target.matches('#player-name') && event.key === 'Enter' && view === 'login') {
-        event.preventDefault();
-        playerName = document.querySelector('#player-name').value.trim();
-        if (playerName) {
-            sessionStorage.setItem('playerName', playerName);
-            socket.emit('player:login', {playerName: playerName});
-            setView('lobby');
+document.addEventListener('keydown', (event) => {
+    if (event.target.matches('#player-name') && view === 'login') {
+        document.querySelector('.login-message').innerHTML = '';
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            document.querySelector('#login-button').click();
         }
     }
 });
 
 document.addEventListener('click', (event) => {
-    if (view === 'lobby') {
+    if (view === 'login') {
+        if (event.target.matches('#login-button')) {
+            playerName = document.querySelector('#player-name').value.trim();
+            if (playerName) {
+                socket.emit('player:login', {playerName: playerName});
+            }
+        }
+    } else if (view === 'lobby') {
         if (event.target.matches('.room-button')) {
             socket.emit('room:join', {gameId: parseInt(event.target.id), playerName: playerName});
-        }
-        if (event.target.matches('#change-name-button')) {
+        } else if (event.target.matches('#change-name-button')) {
             socket.emit('player:logout');
             sessionStorage.removeItem('playerName');
             setView('login');
             document.querySelector('#player-name').focus();
         }
-    }
-    else if (view === 'game') {
+    } else if (view === 'game') {
         if (event.target.matches('#leave-button')) {
             socket.emit('room:leave');
             setView('lobby');
-        }
-        if (event.target.matches('#restart-button')) {
+        } else if (event.target.matches('#restart-button')) {
             socket.emit('room:reset');
-        }
-        if (event.target.matches('.game-board-cell')) {
+        } else if (event.target.matches('.game-board-cell')) {
             cells = event.target.dataset.cell.split(',');
             socket.emit('room:move', {x: parseInt(cells[0]), y: parseInt(cells[1])});
         }
@@ -129,28 +147,37 @@ document.addEventListener('click', (event) => {
 
 
 // Socket listeners
-socket.on('lobby:update', (data) => {
-    console.log('lobby:update', data);
-    if (view === 'lobby') {
-        for (let i = 1; i <= 4; i++) {
-            document.querySelector('#players-' + i).innerHTML = '';
-            if (data[i - 1].players.length > 0) {
-                for (let j = 0; j < data[i - 1].players.length; j++) {
-                    document.querySelector('#players-' + i).innerHTML += '<div class="room-player">' + data[i - 1].players[j].name + '</div>';
-                }
-            } else {
-                document.querySelector('#players-' + i).innerHTML = '<div class="room-player">Empty</div>';
-            }
-        }
+socket.on('player:login:success', (data) => {
+    console.log('player:login:success');
+    if (view === 'login') {
+        sessionStorage.setItem('playerName', data.playerName);
+        setView('lobby');
     }
+});
+
+socket.on('player:login:failed', (data) => {
+    console.log('player:login:failed');
+    if (view === 'login') {
+        document.querySelector('.login-message').innerHTML = data.message;
+        setTimeout(() => {
+            if (view === 'login') {
+                document.querySelector('.login-message').innerHTML = '';
+            }
+        }, 5000);
+    }
+});
+
+socket.on('lobby:update', (rooms) => {
+    console.log('lobby:update', rooms);
+    updateLobby(rooms);
 });
 
 socket.on('room:full', () => {
     console.log('room:full');
 });
 
-socket.on('room:joined', (data) => {
-    console.log('room:joined', data);
+socket.on('room:joined', () => {
+    console.log('room:joined');
     if (view === 'lobby') {
         setView('game');
     }
@@ -171,7 +198,7 @@ socket.on('room:update', (data) => {
                 document.querySelector('#restart-button').style.display = 'block';
                 if (data.winner === 'draw') {
                     document.querySelector('.game-status-turn').innerHTML = 'Draw!';
-                } else if (data.winner.name === playerName) {
+                } else if (data.winner.id === socket.id) {
                     document.querySelector('.game-status-turn').innerHTML = 'You win!';
                 } else {
                     document.querySelector('.game-status-turn').innerHTML = 'You lose!';

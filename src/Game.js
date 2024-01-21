@@ -89,7 +89,7 @@ module.exports = class Game {
         }
 
         if (winner !== null) {
-            this.winner = winner === 'X' ? this.players[0] : this.players[1];
+            this.winner = winner === 'O' ? this.players[0] : this.players[1];
         }
 
         if (this.board.every(row => row.every(x => x !== null)) && this.winner === null) {

@@ -32,8 +32,15 @@ io.on('connection', (socket) => {
     console.log(`New connection: ${socket.id}`);
 
     socket.on('player:login', (data) => {
-        socket.join('lobby');
-        socket.emit('lobby:update', games);
+        if (data.playerName.trim()) {
+            if (data.playerName.trim().length > 20) {
+                socket.emit('player:login:failed', { message: 'Error: Max name length is 20.' });
+                return;
+            }
+            socket.emit('player:login:success', { playerName: data.playerName.trim() });
+            socket.join('lobby');
+            socket.emit('lobby:update', games);
+        }
     });
 
     socket.on('player:logout', () => {
@@ -45,7 +52,7 @@ io.on('connection', (socket) => {
         if (game.addPlayer(socket.id, data.playerName)) {
             socket.leave('lobby');
             socket.join(data.gameId);
-            socket.emit('room:joined', { gameId: data.gameId });
+            socket.emit('room:joined');
             io.to(data.gameId).emit('room:update', game.getGameState());
             io.to('lobby').emit('lobby:update', games);
             console.log(`Player ${socket.id} has joined room ${data.gameId}`);
