@@ -36,20 +36,23 @@ button:hover {
 [class^="room-"] {
   display: flex;
   flex-direction: row;
-  margin: 20px;
-  justify-content: center;
-  align-items: center;
+  justify-content: space-between;
+  align-items:center;
   height: 100%;
+  gap: 8px;
 }
 
 [class^="room-button"] {
   height: 5vh;
+  justify-content: center;
 }
 
 .room-1, .room-2, .room-3, .room-4 {
+  display: flex;
   border: 6px solid wheat;
   width: 20vw;
   margin: 10px;
+  padding: 10px;
 }
 
 .layout {
