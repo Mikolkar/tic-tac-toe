@@ -28,27 +28,16 @@ function findGame(playerId) {
     return games.find((game) => game.players.some((player) => player.id === playerId));
 }
 
-function resetGame(game) {
-    if (game && game.board) {
-        for (let i = 0; i < game.board.length; i++) {
-            for (let j = 0; j < game.board[i].length; j++) {
-                game.board[i][j] = null;
-            }
-        }
-        game.winner = null;
-        game.draw = false;
-        game.currentPlayer === game.players[0] ? game.currentPlayer = game.players[1] : game.currentPlayer = game.players[0];
-    } else {
-        console.error('Game not found or game board is not defined');
-    }
-}
-
 io.on('connection', (socket) => {
     console.log(`New connection: ${socket.id}`);
 
     socket.on('player:login', (data) => {
         socket.join('lobby');
         socket.emit('lobby:update', games);
+    });
+
+    socket.on('player:logout', () => {
+        socket.leave('lobby');
     });
 
     socket.on('room:join', (data) => {
@@ -69,7 +58,6 @@ io.on('connection', (socket) => {
         let game = findGame(socket.id);
         game.makeMove(socket.id, data.x, data.y);
         io.to(game.id).emit('room:update', game.getGameState());
-        // console.log(game.getGameState());
     });
 
     socket.on('room:leave', () => {
@@ -80,14 +68,14 @@ io.on('connection', (socket) => {
             io.to(game.id).emit('room:update', game.getGameState());
             socket.join('lobby');
             io.to('lobby').emit('lobby:update', games);
+            console.log(`Player ${socket.id} has left room ${game.id}`);
         }
     });
 
-    socket.on('room:restart', () => {
+    socket.on('room:reset', () => {
         let game = findGame(socket.id);
         if (game) {
-            resetGame(game);
-            console.log("reset");
+            game.reset();
             io.to(game.id).emit('room:update', game.getGameState());
         }
     });
@@ -99,8 +87,8 @@ io.on('connection', (socket) => {
             socket.leave(game.id);
             socket.leave('lobby');
             io.to(game.id).emit('room:update', game.getGameState());
-            console.log(`Player ${socket.id} has left room ${game.id}`);
             io.to('lobby').emit('lobby:update', games);
+            console.log(`Player ${socket.id} has left room ${game.id}`);
         }
         console.log(`User disconnected: ${socket.id}`);
     });

@@ -7,12 +7,12 @@ var contents = {
     'login': `
         <div class="login">
             <div class="login-form">
-                <input class="login-form-input" type="text" id="player-name" placeholder="Enter your name">
+                <input class="login-form-input" type="text" id="player-name" placeholder="Enter your name" autofocus>
             </div>
         </div>`,
     'lobby': `
         <div class="lobby">
-            <h2 class="welcome-title">Welcome, %playerName%</h2>
+            <h2 class="welcome-title"></h2>
             <h2 class="lobby-title">Lobby</h2>
             <div class="lobby-list">
                 <div class="room-1">
@@ -35,15 +35,13 @@ var contents = {
                     <div class="room-players" id="players-4"></div>
                     <button class="room-button" id="4">Join</button>
                 </div>
+                <div class="change-name">
+                    <button class="change-name-button" id="change-name-button">Change name</button>
+                </div>
             </div>
         </div>`,
         'game': `
             <div class="game">
-                <div class="game-status">
-                    <div class="game-status-title">Game Status</div>
-                    <div class="game-status-player"></div>
-                    <div class="game-turn-title"></div>
-                </div>
                 <div class="game-board">
                     <div class="game-board-row">
                         <div class="game-board-cell" data-cell="0,0"></div>
@@ -61,46 +59,25 @@ var contents = {
                         <div class="game-board-cell" data-cell="2,2"></div>
                     </div>
                 </div>
-                <div class="game-action">
+                <div class="game-status">
+                    <div class="game-status-player"></div>
+                    <div class="game-status-turn"></div>
                     <button class="game-status-button" id="leave-button">Leave</button>
-                    <button class="game-status-button" id="restart-button">Restart</button>
+                    <button class="game-status-button" id="restart-button">Play again</button>
                 </div>
-                </div>
-        </div>`,
-        'game-result': 
-        `<div class="result">
-            <div class="result-title">Game Result</div>
-            <div class="result-message"></div>
-            <button class="result-button">Play Again</button>
-       </div>`
-
+            </div>`
 };
 
 function setView(viewName) {
     document.querySelector('.content').innerHTML = contents[viewName];
     view = viewName;
     if (viewName === 'lobby') {
-        document.querySelector('.welcome-title').innerHTML = document.querySelector('.welcome-title').innerHTML.replace('%playerName%', playerName);
+        document.querySelector('.welcome-title').innerHTML = `Welcome, ${playerName}`;
     }
 }
-
-function setTurn(currentPlayerName) {
-    const statusElement = document.querySelector('.game-status-player');
-    if (currentPlayerName === playerName) {
-        statusElement.innerHTML = "It's your turn";
-    } 
-    else if (currentPlayerName === '') {
-        statusElement.innerHTML = "";
-    }
-    else {
-        statusElement.innerHTML = `It's ${currentPlayerName}'s turn`;
-    }
-}
-
 
 function drawBoard(board) {
     if (view === 'game') {
-        console.log(board);
         for (let i = 0; i < board.length; i++) {
             for (let j = 0; j < board[0].length; j++) {
                 document.querySelector(`[data-cell="${i},${j}"]`).innerHTML = board[i][j]; 
@@ -109,6 +86,8 @@ function drawBoard(board) {
     }
 }
 
+
+// Event listeners
 document.addEventListener('keypress', (event) => {
     if (event.target.matches('#player-name') && event.key === 'Enter' && view === 'login') {
         event.preventDefault();
@@ -121,11 +100,16 @@ document.addEventListener('keypress', (event) => {
     }
 });
 
-
 document.addEventListener('click', (event) => {
     if (view === 'lobby') {
         if (event.target.matches('.room-button')) {
             socket.emit('room:join', {gameId: parseInt(event.target.id), playerName: playerName});
+        }
+        if (event.target.matches('#change-name-button')) {
+            socket.emit('player:logout');
+            sessionStorage.removeItem('playerName');
+            setView('login');
+            document.querySelector('#player-name').focus();
         }
     }
     else if (view === 'game') {
@@ -133,19 +117,18 @@ document.addEventListener('click', (event) => {
             socket.emit('room:leave');
             setView('lobby');
         }
+        if (event.target.matches('#restart-button')) {
+            socket.emit('room:reset');
+        }
         if (event.target.matches('.game-board-cell')) {
             cells = event.target.dataset.cell.split(',');
             socket.emit('room:move', {x: parseInt(cells[0]), y: parseInt(cells[1])});
         }
     }
-    else if (view === 'game-result') {
-        if (event.target.matches('.result-button')) {
-            socket.emit('room:restart');
-            setView('game');
-        }
-    }
 });
 
+
+// Socket listeners
 socket.on('lobby:update', (data) => {
     console.log('lobby:update', data);
     if (view === 'lobby') {
@@ -176,35 +159,41 @@ socket.on('room:joined', (data) => {
 socket.on('room:update', (data) => {
     console.log('room:update', data);
     if (view === 'game') {
+        drawBoard(data.board);
+        document.querySelector('#restart-button').style.display = 'none';
         if (data.players.length === 1) {
             document.querySelector('.game-status-player').innerHTML = 'Waiting for player...';
+            document.querySelector('.game-status-turn').innerHTML = '';
         }
         if (data.players.length === 2) {
             document.querySelector('.game-status-player').innerHTML = `Playing with ${data.players[0].name === playerName ? data.players[1].name : data.players[0].name}`;
-            setTurn(data.currentPlayer.name);
+            if (data.winner) {
+                document.querySelector('#restart-button').style.display = 'block';
+                if (data.winner === 'draw') {
+                    document.querySelector('.game-status-turn').innerHTML = 'Draw!';
+                } else if (data.winner.name === playerName) {
+                    document.querySelector('.game-status-turn').innerHTML = 'You win!';
+                } else {
+                    document.querySelector('.game-status-turn').innerHTML = 'You lose!';
+                }
+            } else {
+                if (data.currentPlayer.id === socket.id) {
+                    document.querySelector('.game-status-turn').innerHTML = 'Your turn';
+                } else {
+                    document.querySelector('.game-status-turn').innerHTML = `${data.currentPlayer.name}'s turn`;
+                }
+            }
         }
-        drawBoard(data.board);
-        if (data.winner) {
-            // if (data.winner === playerName) {
-            //     document.querySelector('.result-message').innerHTML = 'You won!';
-            // } else {
-            //     document.querySelector('.result-message').innerHTML = 'You lost!';
-            // }
-            setView('game-result');
-        }
-        // else if (data.draw) {
-        //     document.querySelector('.result-message').innerHTML = 'Draw!';
-        //     setView('game-result');
-        // }
     }
 });
 
-document.addEventListener('click', (event) => {
-    if (event.target.matches('#restart-button')) {
-        socket.emit('room:restart');
-    }
+socket.on('disconnect', () => {
+    console.log('disconnect');
+    location.reload();
 });
 
+
+// Initialization
 if (playerName) {
     setView('lobby');
     socket.emit('player:login', {playerName: playerName});

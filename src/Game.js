@@ -9,7 +9,6 @@ module.exports = class Game {
         this.players = [];
         this.currentPlayer = null;
         this.winner = null;
-        this.draw = false;
     }
 
     getGameState() {
@@ -18,8 +17,7 @@ module.exports = class Game {
             board: this.board,
             players: this.players,
             currentPlayer: this.currentPlayer,
-            winner: this.winner,
-            draw: this.draw,
+            winner: this.winner
         };
     }
 
@@ -45,7 +43,7 @@ module.exports = class Game {
     makeMove(playerId, x, y) {
         if (this.currentPlayer !== null) {
             if (this.currentPlayer.id === playerId && this.board[x][y] === null && this.winner === null) {
-                this.board[x][y] = playerId === this.players[0].id ? 'X' : 'O';
+                this.board[x][y] = playerId === this.players[0].id ? 'O' : 'X';
                 this.currentPlayer = this.players.find(p => p.id !== playerId);
                 this.checkWinner();
             }
@@ -56,11 +54,15 @@ module.exports = class Game {
         let winner = null;
 
         //check rows
-        this.board.forEach(row => {
-            if (row.every(x => x === row[0])) {
-                winner = row[0];
+        for (let i = 0; i < 3; i++) {
+            if (
+                this.board[i][0] !== null &&
+                this.board[i][0] === this.board[i][1] &&
+                this.board[i][0] === this.board[i][2]
+            ) {
+                winner = this.board[i][0];
             }
-        });
+        }
 
         //check columns
         for (let i = 0; i < 3; i++) {
@@ -90,8 +92,8 @@ module.exports = class Game {
             this.winner = winner === 'X' ? this.players[0] : this.players[1];
         }
 
-        if (this.board.every(row => row.every(cell => cell !== null))) {
-            this.draw = true;
+        if (this.board.every(row => row.every(x => x !== null)) && this.winner === null) {
+            this.winner = 'draw';
         }
     }
 
@@ -101,7 +103,8 @@ module.exports = class Game {
             [null, null, null],
             [null, null, null]
         ];
-        this.currentPlayer = null;
+        this.players = this.players.length === 2 ? this.players.reverse() : this.players;
+        this.currentPlayer = this.players.length === 2 ? this.players[0] : null;
         this.winner = null;
     }
 }
