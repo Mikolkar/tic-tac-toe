@@ -7,7 +7,9 @@ The project was created by **UWR** students for
 
 ## Screenshots
 
-**TO-DO**
+![Login screen](./screenshots/login_screen.png)
+![Lobby](./screenshots/lobby.png)
+![Game](./screenshots/game.png)
 
 ## Features
 
