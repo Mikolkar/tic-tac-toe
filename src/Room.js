@@ -1,4 +1,4 @@
-module.exports = class Game {
+module.exports = class Room {
     constructor(id) {
         this.id = id;
         this.board = [
@@ -17,7 +17,7 @@ module.exports = class Game {
         };
     }
 
-    getGameState() {
+    getRoomState() {
         return {
             id: this.id,
             board: this.board,

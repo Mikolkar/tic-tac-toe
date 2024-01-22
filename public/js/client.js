@@ -190,7 +190,7 @@ document.addEventListener('click', (event) => {
         }
     } else if (view === 'lobby') {
         if (event.target.matches('.room-button')) {
-            socket.emit('room:join', {gameId: parseInt(event.target.id), playerName: playerName});
+            socket.emit('room:join', {roomId: parseInt(event.target.id), playerName: playerName});
         } else if (event.target.matches('#change-name-button')) {
             socket.emit('player:logout');
             sessionStorage.removeItem('playerName');
