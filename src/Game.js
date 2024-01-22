@@ -57,8 +57,9 @@ module.exports = class Game {
                 if(this.winner !== null) {
                     if(this.winner.id === 'draw') {
                         this.score.draw++;
+                    } else {
+                        this.winner === this.players[0] ? this.score.O++ : this.score.X++;
                     }
-                    this.winner === this.players[0] ? this.score.O++ : this.score.X++;
                 }
             }
         }

@@ -268,7 +268,6 @@ socket.on('room:update', (data) => {
                 } else {
                     document.querySelector('.game-status-turn').innerHTML = 'You lose!';
                 }
-                
                 document.querySelector('#restart-button').classList.remove('hide-element');
             } else {
                 if (data.currentPlayer.id === socket.id) {
