@@ -1,10 +1,9 @@
 :root {
   --bg-color: #1a1a1a;
+  --accent-color: #4169e1;
   --font-color: white;
   --font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --cell-bg-color: #613a3a;
   --button-bg-color: #dddddd;
-  --button-hover-bg-color: #4169e1;
   --footer-bg-color: #0a0a0a;
 }
 
@@ -17,51 +16,20 @@ body {
 
 button {
   background-color: var(--button-bg-color);
-  border-radius: 8px;
+  border-radius: 1vh;
   border-width: 0;
   font-size: 1.7vh;
   width: 10vh;
-  height: 7vh;
+  height: 6vh;
   cursor: pointer;
   transition: 0.3s;
-  margin-top: 0.5vh;
-  margin-bottom: 0.5vh;
 }
 
 button:hover {
-  background-color: var(--button-hover-bg-color);
-  color: white;
+  background-color: var(--accent-color);
+  color: var(--font-color);
 }
 
-[class^="room-"] {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items:center;
-  height: 100%;
-  gap: 8px;
-}
-
-[class^="room-button"] {
-  height: 5vh;
-  justify-content: center;
-}
-
-.room-1, .room-2, .room-3, .room-4 {
-  display: flex;
-  border: 6px solid wheat;
-  width: 20vw;
-  margin: 10px;
-  padding: 10px;
-}
-
-.layout {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  gap: 20px; 
-}
 .container {
   display: flex;
   flex-direction: column;
@@ -72,7 +40,7 @@ button:hover {
 
 .title {
   font-size: 3vh;
-  margin-bottom: 1vh;
+  margin-bottom: 2vh;
   text-transform: uppercase;
   letter-spacing: 0.3vh;
 }
@@ -95,28 +63,60 @@ button:hover {
 }
 
 .login-form-input {
+  width: 100%;
+  height: 100%;
   color: var(--font-color);
   background-color: transparent;
-  text-align: center;
-  border: 1px solid var(--font-color);
-  border-radius: 8px;
   font-size: 3vmin;
   font-weight: bold;
+  border: 1px solid var(--font-color);
+  border-radius: 1vh;
   outline: none;
-  height: 100%;
-  width: 100%;
   box-sizing: border-box;
+  text-align: center;
 }
 
 .login-form-button {
   width: 6vmin;
   height: 100%;
+  color: var(--font-color);
   margin-left: 1%;
+  border: 1px solid var(--font-color);
   font-size: 3vmin;
   font-weight: bold;
-  border: 1px solid var(--font-color);
   background-color: transparent;
-  color: white;
+}
+
+.lobby {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.lobby-title {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  text-align: center;
+  gap: 2vh;
+  margin-bottom: 1vh;
+}
+
+.room {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--font-color);
+  border-radius: 1vh;
+  width: 48vh;
+  height: 8vh;
+  margin: 2vh;
+  padding: 1vh;
 }
 
 .game {
@@ -125,30 +125,21 @@ button:hover {
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
+  gap: 5vh;
 }
 
 .game-status {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  flex-wrap: wrap;
   align-items: center;
-  width: 350px;
-  height: 300px;
+  flex-wrap: wrap;
+  width: 30vh;
+  text-align: center;
+  gap: 2.5vh;
 }
 
-.game-status-player {
-  font-weight: bold;
-  margin-bottom: 30px;
-}
-
-.game-status-turn {
-  font-weight: bold;
-  margin-bottom: 30px;
-}
-
-#restart-button {
-  margin-top: 10px;
+.hide-element {
   display: none;
 }
 
@@ -166,11 +157,30 @@ button:hover {
   align-items: center;
   width: 20vmin;
   height: 20vmin;
-  background-color: var(--bg-color);
-  margin-left: -3px;
-  border: 6px solid wheat;
+  border: 0.5vmin solid wheat;
+  margin-left: -0.15vmin;
   font-size: 14vmin;
   cursor: pointer;
+}
+
+.winning-cell {
+  color: red;
+}
+
+.no-border-top {
+  border-top: none
+}
+
+.no-border-left {
+  border-left: none;
+}
+
+.no-border-right {
+  border-right: none;
+}
+
+.no-border-bottom {
+  border-bottom: none;
 }
 
 .footer {
@@ -181,6 +191,7 @@ button:hover {
   position: fixed;
   width: 100%;
   height: 6vmin;
+  text-align: center;
   font-size: 2vmin;
   bottom: 0;
   background-color: #0a0a0a;
@@ -188,20 +199,20 @@ button:hover {
 
 a:link {
   text-decoration: none;
-  color: var(--button-hover-bg-color);
+  color: var(--accent-color);
 }
 
 a:visited {
   text-decoration: none;
-  color: var(--button-hover-bg-color);
+  color: var(--accent-color);
 }
 
 a:hover {
   text-decoration: underline;
-  color: var(--button-hover-bg-color);
+  color: var(--accent-color);
 }
 
 a:active {
   text-decoration: underline;
-  color: var(--button-hover-bg-color);
+  color: var(--accent-color);
 }

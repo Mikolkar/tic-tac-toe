@@ -14,30 +14,29 @@ var contents = {
         </div>`,
     'lobby': `
         <div class="lobby">
-            <div class="layout">
+            <div class="lobby-title">
                 <h2 class="welcome-title"></h2>
                 <div class="change-name">
                     <button class="change-name-button" id="change-name-button">Change name</button>
                 </div>
             </div>
-            <h2 class="lobby-title">Lobby</h2>
             <div class="lobby-list">
-                <div class="room-1">
+                <div class="room">
                     <div class="room-name">Room 1</div>
                     <div class="room-players" id="players-1"></div>
                     <button class="room-button" id="1">Join</button>
                 </div>
-                <div class="room-2">
+                <div class="room">
                     <div class="room-name">Room 2</div>
                     <div class="room-players" id="players-2"></div>
                     <button class="room-button" id="2">Join</button>
                 </div>
-                <div class="room-3">
+                <div class="room">
                     <div class="room-name">Room 3</div>
                     <div class="room-players" id="players-3"></div>
                     <button class="room-button" id="3">Join</button>
                 </div>
-                <div class="room-4">
+                <div class="room">
                     <div class="room-name">Room 4</div>
                     <div class="room-players" id="players-4"></div>
                     <button class="room-button" id="4">Join</button>
@@ -49,26 +48,26 @@ var contents = {
             <div class="game">
                 <div class="game-board">
                     <div class="game-board-row">
-                        <div class="game-board-cell" data-cell="0,0"></div>
-                        <div class="game-board-cell" data-cell="0,1"></div>
-                        <div class="game-board-cell" data-cell="0,2"></div>
+                        <div class="game-board-cell no-border-top no-border-left" data-cell="0,0"></div>
+                        <div class="game-board-cell no-border-top" data-cell="0,1"></div>
+                        <div class="game-board-cell no-border-top no-border-right" data-cell="0,2"></div>
                     </div>
                     <div class="game-board-row">
-                        <div class="game-board-cell" data-cell="1,0"></div>
+                        <div class="game-board-cell no-border-left" data-cell="1,0"></div>
                         <div class="game-board-cell" data-cell="1,1"></div>
-                        <div class="game-board-cell" data-cell="1,2"></div>
+                        <div class="game-board-cell no-border-right" data-cell="1,2"></div>
                     </div>
                     <div class="game-board-row">
-                        <div class="game-board-cell" data-cell="2,0"></div>
-                        <div class="game-board-cell" data-cell="2,1"></div>
-                        <div class="game-board-cell" data-cell="2,2"></div>
+                        <div class="game-board-cell no-border-bottom no-border-left" data-cell="2,0"></div>
+                        <div class="game-board-cell no-border-bottom" data-cell="2,1"></div>
+                        <div class="game-board-cell no-border-bottom no-border-right" data-cell="2,2"></div>
                     </div>
                 </div>
                 <div class="game-status">
                     <div class="game-status-player"></div>
                     <div class="game-status-turn"></div>
                     <button class="game-status-button" id="leave-button">Leave</button>
-                    <button class="game-status-button" id="restart-button">Play again</button>
+                    <button class="game-status-button hide-element" id="restart-button">Play again</button>
                 </div>
             </div>`
 };
@@ -96,29 +95,44 @@ function updateLobby(rooms) {
     }
 }
 
-function drawBoard(board, win = false, winLine = null) {
+function checkWinningCells(board) {
+    // check rows
+    for (let i = 0; i < board.length; i++) {
+        if (board[i][0] && board[i][0] === board[i][1] && board[i][0] === board[i][2]) {
+            return [[i, 0], [i, 1], [i, 2]];
+        }
+    }
+
+    // check columns
+    for (let i = 0; i < board[0].length; i++) {
+        if (board[0][i] && board[0][i] === board[1][i] && board[0][i] === board[2][i]) {
+            return [[0, i], [1, i], [2, i]];
+        }
+    }
+
+    // check diagonals
+    if (board[0][0] && board[0][0] === board[1][1] && board[0][0] === board[2][2]) {
+        return [[0, 0], [1, 1], [2, 2]];
+    } else if (board[0][2] && board[0][2] === board[1][1] && board[0][2] === board[2][0]) {
+        return [[0, 2], [1, 1], [2, 0]];
+    }
+
+    return null;
+}
+
+function drawBoard(board) {
     if (view === 'game') {
+        let winningCells = checkWinningCells(board);
         for (let i = 0; i < board.length; i++) {
             for (let j = 0; j < board[0].length; j++) {
+                document.querySelector(`[data-cell="${i},${j}"]`).classList.remove('winning-cell');
                 document.querySelector(`[data-cell="${i},${j}"]`).innerHTML = board[i][j]; 
-                if(i == 0){
-                    document.querySelector(`[data-cell="${i},${j}"]`).style.borderTop = 'none';
-                }
-                if(i == 2){
-                    document.querySelector(`[data-cell="${i},${j}"]`).style.borderBottom = 'none';
-                }
-                if(j == 0){
-                    document.querySelector(`[data-cell="${i},${j}"]`).style.borderLeft = 'none';
-                }
-                if(j == 2){
-                    document.querySelector(`[data-cell="${i},${j}"]`).style.borderRight = 'none';
-                }
-                if(win){
-                    if(winLine.some((cell) => cell[0] === i && cell[1] === j)){
-                        document.querySelector(`[data-cell="${i},${j}"]`).style.color = 'red';
+                if (winningCells) {
+                    for (let k = 0; k < winningCells.length; k++) {
+                        if (winningCells[k][0] === i && winningCells[k][1] === j) {
+                            document.querySelector(`[data-cell="${i},${j}"]`).classList.add('winning-cell');
+                        }
                     }
-                }else{
-                    document.querySelector(`[data-cell="${i},${j}"]`).style.color = 'wheat';
                 }
             }
         }
@@ -207,13 +221,8 @@ socket.on('room:joined', () => {
 socket.on('room:update', (data) => {
     console.log('room:update', data);
     if (view === 'game') {
-        if(data.winner !== null && data.winner !== 'draw') {
-            drawBoard(data.board, true, data.winningLine);
-        }else{
-            drawBoard(data.board);
-        }
-        
-        document.querySelector('#restart-button').style.display = 'none';
+        document.querySelector('#restart-button').classList.add('hide-element');
+        drawBoard(data.board, data.winningCells);
         if (data.players.length === 1) {
             document.querySelector('.game-status-player').innerHTML = 'Waiting for player...';
             document.querySelector('.game-status-turn').innerHTML = '';
@@ -221,14 +230,14 @@ socket.on('room:update', (data) => {
         if (data.players.length === 2) {
             document.querySelector('.game-status-player').innerHTML = `Playing with ${data.players[0].name === playerName ? data.players[1].name : data.players[0].name}`;
             if (data.winner) {
-                document.querySelector('#restart-button').style.display = 'block';
-                if (data.winner === 'draw') {
+                if (data.winner.id  === 'draw') {
                     document.querySelector('.game-status-turn').innerHTML = 'Draw!';
                 } else if (data.winner.id === socket.id) {
                     document.querySelector('.game-status-turn').innerHTML = 'You win!';
                 } else {
                     document.querySelector('.game-status-turn').innerHTML = 'You lose!';
                 }
+                document.querySelector('#restart-button').classList.remove('hide-element');
             } else {
                 if (data.currentPlayer.id === socket.id) {
                     document.querySelector('.game-status-turn').innerHTML = 'Your turn';

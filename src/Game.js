@@ -9,7 +9,6 @@ module.exports = class Game {
         this.players = [];
         this.currentPlayer = null;
         this.winner = null;
-        this.winningLine = [[0,0],[0,0],[0,0]];
     }
 
     getGameState() {
@@ -18,8 +17,7 @@ module.exports = class Game {
             board: this.board,
             players: this.players,
             currentPlayer: this.currentPlayer,
-            winner: this.winner,
-            winningLine: this.winningLine,
+            winner: this.winner
         };
     }
 
@@ -56,45 +54,24 @@ module.exports = class Game {
         let winner = null;
 
         //check rows
-        for (let i = 0; i < 3; i++) {
-            if (
-                this.board[i][0] !== null &&
-                this.board[i][0] === this.board[i][1] &&
-                this.board[i][0] === this.board[i][2]
-            ) {
+        for (let i = 0; i < this.board.length; i++) {
+            if (this.board[i][0] && this.board[i][0] === this.board[i][1] && this.board[i][0] === this.board[i][2]) {
                 winner = this.board[i][0];
-                this.winningLine = [[i, 0], [i, 1] ,[i, 2]];
             }
         }
 
         //check columns
-        for (let i = 0; i < 3; i++) {
-            if (
-                this.board[0][i] !== null &&
-                this.board[0][i] === this.board[1][i] &&
-                this.board[0][i] === this.board[2][i]
-            ) {
+        for (let i = 0; i < this.board[0].length; i++) {
+            if (this.board[0][i] && this.board[0][i] === this.board[1][i] && this.board[0][i] === this.board[2][i]) {
                 winner = this.board[0][i];
-                this.winningLine = [[0, i], [1, i], [2, i]];
             }
         }
 
         //check diagonals
-        if ((
-            this.board[0][0] !== null &&
-            this.board[0][0] === this.board[1][1] &&
-            this.board[0][0] === this.board[2][2]
-        ) || (
-            this.board[0][2] !== null &&
-            this.board[0][2] === this.board[1][1] &&
-            this.board[0][2] === this.board[2][0]
-        )) {
+        if (this.board[0][0] && this.board[0][0] === this.board[1][1] && this.board[0][0] === this.board[2][2]) {
             winner = this.board[1][1];
-            if(this.board[0][0] === this.board[1][1] && this.board[0][0] === this.board[2][2]){
-                this.winningLine = [[0, 0], [1, 1], [2, 2]];
-            }else{
-                this.winningLine = [[0, 2], [1, 1], [2, 0]];
-            }
+        } else if (this.board[0][2] && this.board[0][2] === this.board[1][1] && this.board[0][2] === this.board[2][0]) {
+            winner = this.board[1][1];
         }
 
         if (winner !== null) {
@@ -102,7 +79,7 @@ module.exports = class Game {
         }
 
         if (this.board.every(row => row.every(x => x !== null)) && this.winner === null) {
-            this.winner = 'draw';
+            this.winner = {id: 'draw', name: 'Draw'};
         }
     }
 
@@ -115,7 +92,6 @@ module.exports = class Game {
         this.players = this.players.length === 2 ? this.players.reverse() : this.players;
         this.currentPlayer = this.players.length === 2 ? this.players[0] : null;
         this.winner = null;
-        this.winningLine = null;
     }
 }
 
