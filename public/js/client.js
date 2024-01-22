@@ -64,6 +64,7 @@ var contents = {
                     </div>
                 </div>
                 <div class="game-status">
+                    <div class="score-board-list"> <ul class="score-board-list"></ul> </div>
                     <div class="game-status-player"></div>
                     <div class="game-status-turn"></div>
                     <button class="game-status-button" id="leave-button">Leave</button>
@@ -91,6 +92,35 @@ function updateLobby(rooms) {
             } else {
                 document.querySelector('#players-' + i).innerHTML = '<div class="room-player">Empty</div>';
             }
+        }
+    }
+}
+
+function updateScoreBoard(score, players) {
+    if (view === 'game') {
+        document.querySelector('.score-board-list').style.listStyleType = 'none';
+        // console.log("rounds",score.rounds);
+        // console.log("players",players);
+        if(players.length === 2){
+            if(score.rounds % 2 === 0) {
+                document.querySelector('.score-board-list').innerHTML = `
+                <li class="score-board-item">${players[0].name}: ${score.O}</li>
+                <li class="score-board-item">Draw: ${score.draw}</li>
+                <li class="score-board-item">${players[1].name}: ${score.X}</li>
+            `;
+            } else {
+                document.querySelector('.score-board-list').innerHTML = `
+                <li class="score-board-item">${players[1].name}: ${score.X}</li>
+                <li class="score-board-item">Draw: ${score.draw}</li>
+                <li class="score-board-item">${players[0].name}: ${score.O}</li>
+            `;
+            }
+        } else {
+            document.querySelector('.score-board-list').innerHTML = `
+            <li class="score-board-item"></li>
+            <li class="score-board-item"></li>
+            <li class="score-board-item"></li>
+        `;
         }
     }
 }
@@ -221,6 +251,7 @@ socket.on('room:joined', () => {
 socket.on('room:update', (data) => {
     console.log('room:update', data);
     if (view === 'game') {
+        updateScoreBoard(data.score, data.players);
         document.querySelector('#restart-button').classList.add('hide-element');
         drawBoard(data.board, data.winningCells);
         if (data.players.length === 1) {
@@ -237,6 +268,7 @@ socket.on('room:update', (data) => {
                 } else {
                     document.querySelector('.game-status-turn').innerHTML = 'You lose!';
                 }
+                
                 document.querySelector('#restart-button').classList.remove('hide-element');
             } else {
                 if (data.currentPlayer.id === socket.id) {

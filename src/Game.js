@@ -9,6 +9,12 @@ module.exports = class Game {
         this.players = [];
         this.currentPlayer = null;
         this.winner = null;
+        this.score = {
+            O: 0,
+            X: 0,
+            draw: 0,
+            rounds: 0
+        };
     }
 
     getGameState() {
@@ -17,7 +23,8 @@ module.exports = class Game {
             board: this.board,
             players: this.players,
             currentPlayer: this.currentPlayer,
-            winner: this.winner
+            winner: this.winner,
+            score: this.score
         };
     }
 
@@ -46,6 +53,13 @@ module.exports = class Game {
                 this.board[x][y] = playerId === this.players[0].id ? 'O' : 'X';
                 this.currentPlayer = this.players.find(p => p.id !== playerId);
                 this.checkWinner();
+
+                if(this.winner !== null) {
+                    if(this.winner.id === 'draw') {
+                        this.score.draw++;
+                    }
+                    this.winner === this.players[0] ? this.score.O++ : this.score.X++;
+                }
             }
         }
     }
@@ -89,6 +103,18 @@ module.exports = class Game {
             [null, null, null],
             [null, null, null]
         ];
+        this.players.length === 2 ?
+            this.score = {
+                O: this.score.X,
+                X: this.score.O,
+                draw: this.score.draw,
+                rounds: this.score.rounds + 1
+            } : this.score = {
+                O: 0,
+                X: 0,
+                draw: 0,
+                rounds: 0
+            };
         this.players = this.players.length === 2 ? this.players.reverse() : this.players;
         this.currentPlayer = this.players.length === 2 ? this.players[0] : null;
         this.winner = null;
