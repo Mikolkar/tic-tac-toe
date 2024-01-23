@@ -17,6 +17,9 @@ The project was created by **UWR** students for
 - Player rooms
 - Server-side game implementation
 
+## Instalation
+```npm install```
+
 ## Usage
 
 ```npm start```
